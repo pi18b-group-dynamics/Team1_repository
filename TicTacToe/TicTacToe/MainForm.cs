@@ -131,12 +131,17 @@ namespace TicTacToe
                 Left = help.Right + 15,
                 FlatStyle = FlatStyle.Flat
             };
+            main.Controls.Add(label);
+            main.Controls.Add(grid);
+            main.Controls.Add(back);
+            main.Controls.Add(restart);
             menu.Controls.Add(pve);
             menu.Controls.Add(pvp);
             menu.Controls.Add(options);
             menu.Controls.Add(help);
             menu.Controls.Add(exit);
             this.Controls.Add(menu);
+            this.Controls.Add(main);
         }
         /// <summary>
         /// Рисует линию на панеле через две точки.
