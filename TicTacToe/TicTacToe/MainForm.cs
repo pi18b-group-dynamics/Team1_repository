@@ -397,6 +397,33 @@ namespace TicTacToe
             return false;
         }
         /// <summary>
+        /// Выводит сообщение о победителе и запрашивает продолжение.
+        /// </summary>
+        public bool Winner()
+        {
+            switch (Game.Side)
+            {
+                case Side.X:
+                    if (MessageBox.Show("Победили крестики.\nНачать заново?",
+                        "Победа", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        return true;
+                    }
+                    else
+                        return false;
+                case Side.O:
+                    if (MessageBox.Show("Победили нолики.\nНачать заново?",
+                         "Победа", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    {
+                        return true;
+                    }
+                    else
+                        return false;
+                default:
+                    return false;
+            }
+        }
+        /// <summary>
         /// Рестарт игры
         /// </summary>
         /// <param name="grid">Игровое поле</param>
@@ -405,6 +432,19 @@ namespace TicTacToe
             Game.Restart();
             grid.Refresh();
             turn = false;
+        }
+        /// <summary>
+        /// Определяет ничью.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsDraw()
+        {
+            if (Game.FullCells && MessageBox.Show("Ничья.\nНачать заново?", "Ничья",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
