@@ -113,7 +113,52 @@ namespace TicTacToe
                         }
                         break;
                     case GameMode.PvE:
-                       
+                        UpdateWeights(i, j);
+                        if (Game.Side == Side.X)
+                        {
+                            DrawX(grid, i, j);
+                            if (CheckWinner(grid, i, j))
+                            {
+                                if (Winner())
+                                {
+                                    Restart(grid);
+                                }
+                                else
+                                {
+                                    main.Visible = false;
+                                    menu.Visible = true;
+                                }
+                                return;
+                            }
+                            Game.Side = Side.O;
+                            //Label(label);
+                            /*string tmp = "";
+                            foreach (int t in Game.Cells)
+                                tmp += $", {t}";
+                            MessageBox.Show(tmp);*/
+                            int[] coords = AI();
+                            if (coords != null)
+                            {
+                                Game.Cells[coords[0], coords[1]] = (int)Game.Side;
+                                UpdateWeights(coords[0], coords[1]);
+                                DrawO(grid, coords[0], coords[1]);
+                                if (CheckWinner(grid, coords[0], coords[1]))
+                                {
+                                    if (Winner())
+                                    {
+                                        Restart(grid);
+                                    }
+                                    else
+                                    {
+                                        main.Visible = false;
+                                        menu.Visible = true;
+                                    }
+                                    return;
+                                }
+                                Game.Side = Side.X;
+                                Label(label);
+                            }
+                        }
                         break;
                     default: break;
                 }
@@ -475,6 +520,362 @@ namespace TicTacToe
             Game.Restart();
             grid.Refresh();
             turn = false;
+        }
+        /// <summary>
+        /// Обновление матрицы весов для ИИ.
+        /// </summary>
+        /// <param name="i">Строка</param>
+        /// <param name="j">Столбец</param>
+        public void UpdateWeights(int row, int col)
+        {
+            int cV = 0, cH = 0, cS = 0, cN = 0,
+                rowS = row - col, colS = col - row, rowN = row + col, colN;
+            if (rowS < 0) rowS = 0;
+            if (colS < 0) colS = 0;
+            if (rowN > Settings.Size - 1) rowN = Settings.Size - 1;
+            colN = col + row - rowN;
+            bool fV = false, fH = false, fS = false, fN = false;
+            for (int i = 0; i <= Settings.Size; i++)
+            {
+                try
+                {
+                    if (Game.Cells[i, col] == (int)Game.Side)
+                    {
+                        fV = true;
+                        cV++;
+                    }
+                    else
+                    {
+                        if (fV)
+                        {
+                            try
+                            {
+                                if (Game.Cells[i, col] >= 0 && Game.Cells[i, col] <= cV)
+                                    Game.Cells[i, col] = cV;
+                            }
+                            catch
+                            { }
+                            try
+                            {
+                                if (Game.Cells[i - cV - 1, col] >= 0)
+                                    try
+                                    {
+                                        if (Game.Cells[i - cV - 2, col] == (int)Game.Side)
+                                        {
+                                            Game.Cells[i - cV - 1, col] += cV;
+                                        }
+                                        else
+                                        {
+                                            if (Game.Cells[i - cV - 1, col] <= cV)
+                                                Game.Cells[i - cV - 1, col] = cV;
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        if (Game.Cells[i - cV - 1, col] <= cV)
+                                            Game.Cells[i - cV - 1, col] = cV;
+                                    }
+                            }
+                            catch { }
+                            fV = false;
+                        }
+                        cV = 0;
+                    }
+                }
+                catch
+                {
+                    if (cV != 0 && fV)
+                    {
+                        try
+                        {
+                            if (Game.Cells[i - cV - 1, col] >= 0)
+                                try
+                                {
+                                    if (Game.Cells[i - cV - 2, col] == (int)Game.Side)
+                                    {
+                                        Game.Cells[i - cV - 1, col] += cV;
+                                    }
+                                    else
+                                    {
+                                        if (Game.Cells[i - cV - 1, col] <= cV)
+                                            Game.Cells[i - cV - 1, col] = cV;
+                                    }
+                                }
+                                catch
+                                {
+                                    if (Game.Cells[i - cV - 1, col] <= cV)
+                                        Game.Cells[i - cV - 1, col] = cV;
+                                }
+                        }
+                        catch { }
+                        fV = false;
+                    }
+                }
+                try
+                {
+                    if (Game.Cells[row, i] == (int)Game.Side)
+                    {
+                        fH = true;
+                        cH++;
+                    }
+                    else
+                    {
+                        if (fH)
+                        {
+                            try
+                            {
+                                if (Game.Cells[row, i] >= 0 && Game.Cells[row, i] <= cH)
+                                    Game.Cells[row, i] = cH;
+                            }
+                            catch
+                            { }
+                            try
+                            {
+                                /*if (Game.Cells[row, i - cH - 1] >= 0 && Game.Cells[row, i - cH - 1] <= cH)
+                                    Game.Cells[row, i - cH - 1] = cH;*/
+                                if (Game.Cells[row, i - cH - 1] >= 0)
+                                    try
+                                    {
+                                        if (Game.Cells[row, i - cH - 2] == (int)Game.Side)
+                                        {
+                                            Game.Cells[row, i - cH - 1] += cH;
+                                        }
+                                        else
+                                        {
+                                            if (Game.Cells[row, i - cH - 1] <= cH)
+                                                Game.Cells[row, i - cH - 1] = cH;
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        if (Game.Cells[row, i - cH - 1] <= cH)
+                                            Game.Cells[row, i - cH - 1] = cH;
+                                    }
+                            }
+                            catch { }
+                            fH = false;
+                        }
+                        cH = 0;
+                    }
+                }
+                catch
+                {
+                    if (cH != 0 && fH)
+                    {
+                        try
+                        {
+                            if (Game.Cells[row, i - cH - 1] >= 0)
+                                try
+                                {
+                                    if (Game.Cells[row, i - cH - 2] == (int)Game.Side)
+                                    {
+                                        Game.Cells[row, i - cH - 1] += cH;
+                                    }
+                                    else
+                                    {
+                                        if (Game.Cells[row, i - cH - 1] <= cH)
+                                            Game.Cells[row, i - cH - 1] = cH;
+                                    }
+                                }
+                                catch
+                                {
+                                    if (Game.Cells[row, i - cH - 1] <= cH)
+                                        Game.Cells[row, i - cH - 1] = cH;
+                                }
+                        }
+                        catch { }
+                        fH = false;
+                    }
+                }
+                try
+                {
+                    if (Game.Cells[rowS + i, colS + i] == (int)Game.Side)
+                    {
+                        fS = true;
+                        cS++;
+                    }
+                    else
+                    {
+                        if (fS)
+                        {
+                            try
+                            {
+                                if (Game.Cells[rowS + i, colS + i] >= 0 && Game.Cells[rowS + i, colS + i] <= cS)
+                                    Game.Cells[rowS + i, colS + i] = cS;
+                            }
+                            catch
+                            { }
+                            try
+                            {
+                                /*if (Game.Cells[rowS + i - cS - 1, colS + i - cS - 1]
+                                    >= 0 && Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] <= cS)
+                                    Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] = cS;*/
+                                if (Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] >= 0)
+                                    try
+                                    {
+                                        if (Game.Cells[rowS + i - cS - 2, colS + i - cS - 2] == (int)Game.Side)
+                                        {
+                                            Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] += cS;
+                                        }
+                                        else
+                                        {
+                                            if (Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] <= cS)
+                                                Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] = cS;
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        if (Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] <= cS)
+                                            Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] = cS;
+                                    }
+                            }
+                            catch { }
+                            fS = false;
+                        }
+                        cS = 0;
+                    }
+                }
+                catch
+                {
+                    if (cS != 0 && fS)
+                    {
+                        try
+                        {
+                            if (Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] >= 0)
+                                try
+                                {
+                                    if (Game.Cells[rowS + i - cS - 2, colS + i - cS - 2] == (int)Game.Side)
+                                    {
+                                        Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] += cS;
+                                    }
+                                    else
+                                    {
+                                        if (Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] <= cS)
+                                            Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] = cS;
+                                    }
+                                }
+                                catch
+                                {
+                                    if (Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] <= cS)
+                                        Game.Cells[rowS + i - cS - 1, colS + i - cS - 1] = cS;
+                                }
+                        }
+                        catch { }
+                        fS = false;
+                    }
+                }
+                try
+                {
+                    if (Game.Cells[rowN - i, colN + i] == (int)Game.Side)
+                    {
+                        fN = true;
+                        cN++;
+                    }
+                    else
+                    {
+                        if (fN)
+                        {
+                            try
+                            {
+                                if (Game.Cells[rowN - i, colN + i] >= 0 && Game.Cells[rowN - i, colN + i] <= cN)
+                                    Game.Cells[rowN - i, colN + i] = cN;
+                            }
+                            catch
+                            { }
+                            try
+                            {
+                                /*if (Game.Cells[rowN - i + cN + 1, colN + i - cN - 1]
+                                    >= 0 && Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] <= cN)
+                                    Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] = cN;*/
+                                if (Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] >= 0)
+                                    try
+                                    {
+                                        if (Game.Cells[rowN - i + cN + 2, colN + i - cN - 2] == (int)Game.Side)
+                                        {
+                                            Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] += cN;
+                                        }
+                                        else
+                                        {
+                                            if (Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] <= cN)
+                                                Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] = cN;
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        if (Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] <= cN)
+                                            Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] = cN;
+                                    }
+                            }
+                            catch { }
+                            fN = false;
+                        }
+                        cN = 0;
+                    }
+                }
+                catch
+                {
+                    if (cN != 0 && fN)
+                    {
+                        try
+                        {
+                            if (Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] >= 0)
+                                try
+                                {
+                                    if (Game.Cells[rowN - i + cN + 2, colN + i - cN - 2] == (int)Game.Side)
+                                    {
+                                        Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] += cN;
+                                    }
+                                    else
+                                    {
+                                        if (Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] <= cN)
+                                            Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] = cN;
+                                    }
+                                }
+                                catch
+                                {
+                                    if (Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] <= cN)
+                                        Game.Cells[rowN - i + cN + 1, colN + i - cN - 1] = cN;
+                                }
+                        }
+                        catch { }
+                        fN = false;
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Ход ИИ.
+        /// </summary>
+        /// <returns></returns>
+        public int[] AI()
+        {
+            List<int[]> list = new List<int[]>();
+            int max = 1;
+            for (int i = 0; i < Settings.Size; i++)
+                for (int j = 0; j < Settings.Size; j++)
+                {
+                    if (Game.Cells[i, j] == max)
+                    {
+                        int[] tmp = new int[2];
+                        tmp[0] = i;
+                        tmp[1] = j;
+                        list.Add(tmp);
+                    }
+                    if (Game.Cells[i, j] > max)
+                    {
+                        max = Game.Cells[i, j];
+                        list.Clear();
+                        int[] tmp = new int[2];
+                        tmp[0] = i;
+                        tmp[1] = j;
+                        list.Add(tmp);
+                    }
+                }
+            if (list.Count == 0)
+                return null;
+            Random rnd = new Random();
+            int index = rnd.Next(0, list.Count);
+            return list[index];
         }
         /// <summary>
         /// Определяет ничью.
