@@ -113,6 +113,7 @@ namespace TicTacToe
                         }
                         break;
                     case GameMode.PvE:
+                        
                         break;
                     default: break;
                 }
@@ -160,6 +161,13 @@ namespace TicTacToe
                 Location = new Point(pvMargin, pvMargin),
                 FlatStyle = FlatStyle.Flat
             };
+            pve.Click += (a, b) =>
+            {
+                Game.GameMode = GameMode.PvE;
+                Restart(grid);
+                menu.Visible = false;
+                main.Visible = true;
+            };
             Button pvp = new Button()
             {
                 Text = "PvP",
@@ -169,6 +177,13 @@ namespace TicTacToe
                 Top = pve.Bottom + 30,
                 Left = pve.Left,
                 FlatStyle = FlatStyle.Flat
+            };
+            pvp.Click += (a, b) =>
+            {
+                Game.GameMode = GameMode.PvP;
+                Restart(grid);
+                menu.Visible = false;
+                main.Visible = true;
             };
             Button options = new Button()
             {
@@ -180,6 +195,10 @@ namespace TicTacToe
                 Left = pvp.Left,
                 FlatStyle = FlatStyle.Flat
             };
+            options.Click += (a, b) =>
+            {
+                new SettingsForm().ShowDialog();
+            };
             Button help = new Button()
             {
                 Text = "Справка",
@@ -190,6 +209,10 @@ namespace TicTacToe
                 Left = options.Right + 15,
                 FlatStyle = FlatStyle.Flat
             };
+            help.Click += (a, b) =>
+            {
+                Process.Start(@"Help.txt");
+            };
             Button exit = new Button()
             {
                 Text = "Выход",
@@ -199,6 +222,11 @@ namespace TicTacToe
                 Top = pvp.Bottom + 30,
                 Left = help.Right + 15,
                 FlatStyle = FlatStyle.Flat
+            };
+            exit.Click += (a, b) =>
+            {
+                this.Dispose();
+                Environment.Exit(0);
             };
             main.Controls.Add(label);
             main.Controls.Add(grid);
