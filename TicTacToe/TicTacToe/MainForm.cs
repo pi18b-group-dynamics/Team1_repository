@@ -301,11 +301,6 @@ namespace TicTacToe
             menu.Controls.Add(help);
             menu.Controls.Add(exit);
             this.Controls.Add(menu);
-            this.Controls.Add(main);
-        }
-        public bool CheckWinner(Panel grid, int row, int col)
-        {
-            return true;
         }
         /// <summary>
         /// Рисует линию на панеле через две точки.
