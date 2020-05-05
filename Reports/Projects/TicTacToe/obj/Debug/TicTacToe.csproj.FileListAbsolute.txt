@@ -1,7 +1,0 @@
-C:\Users\Home\Documents\GitHub\Team_1_Repository\Reports\Projects\TicTacToe\bin\Debug\TicTacToe.exe.config
-C:\Users\Home\Documents\GitHub\Team_1_Repository\Reports\Projects\TicTacToe\bin\Debug\TicTacToe.exe
-C:\Users\Home\Documents\GitHub\Team_1_Repository\Reports\Projects\TicTacToe\bin\Debug\TicTacToe.pdb
-C:\Users\Home\Documents\GitHub\Team_1_Repository\Reports\Projects\TicTacToe\obj\Debug\TicTacToe.Properties.Resources.resources
-C:\Users\Home\Documents\GitHub\Team_1_Repository\Reports\Projects\TicTacToe\obj\Debug\TicTacToe.csproj.GenerateResource.cache
-C:\Users\Home\Documents\GitHub\Team_1_Repository\Reports\Projects\TicTacToe\obj\Debug\TicTacToe.exe
-C:\Users\Home\Documents\GitHub\Team_1_Repository\Reports\Projects\TicTacToe\obj\Debug\TicTacToe.pdb
