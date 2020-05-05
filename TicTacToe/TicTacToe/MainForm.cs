@@ -113,7 +113,7 @@ namespace TicTacToe
                         }
                         break;
                     case GameMode.PvE:
-                        
+                       
                         break;
                     default: break;
                 }
@@ -142,6 +142,14 @@ namespace TicTacToe
                 Left = grid.Left,
                 FlatStyle = FlatStyle.Flat
             };
+            back.Click += (a, b) =>
+            {
+                if (turn && MessageBox.Show("Игра не окончена.\nПрекратить игру?", "Назад",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    return;
+                main.Visible = false;
+                menu.Visible = true;
+            };
             Button restart = new Button()
             {
                 Text = "Рестарт",
@@ -151,6 +159,13 @@ namespace TicTacToe
                 Top = grid.Bottom + 25,
                 Left = back.Right + 20,
                 FlatStyle = FlatStyle.Flat
+            };
+            restart.Click += (a, b) =>
+            {
+                if (turn && MessageBox.Show("Игра не окончена.\nНачать заново?", "Рестарт",
+                   MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    return;
+                Restart(grid);
             };
             Button pve = new Button()
             {
