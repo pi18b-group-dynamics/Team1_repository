@@ -113,94 +113,9 @@ namespace TicTacToe
                         }
                         break;
                     case GameMode.PvE:
-                        UpdateWeights(i, j);
-                        if (Game.Side == Side.X)
-                        {
-                            DrawX(grid, i, j);
-                            if (CheckWinner(grid, i, j))
-                            {
-                                if (Winner())
-                                {
-                                    Restart(grid);
-                                }
-                                else
-                                {
-                                    main.Visible = false;
-                                    menu.Visible = true;
-                                }
-                                return;
-                            }
-                            Game.Side = Side.O;
-                            //Label(label);
-                            string tmp = "";
-                            /*foreach (int t in Game.Cells)
-                                tmp += $", {t}";
-                            MessageBox.Show(tmp);*/
-                            int[] coords = AI();
-                            if (coords != null)
-                            {
-                                Game.Cells[coords[0], coords[1]] = (int)Game.Side;
-                                UpdateWeights(coords[0], coords[1]);
-                                DrawO(grid, coords[0], coords[1]);
-                                if (CheckWinner(grid, coords[0], coords[1]))
-                                {
-                                    if (Winner())
-                                    {
-                                        Restart(grid);
-                                    }
-                                    else
-                                    {
-                                        main.Visible = false;
-                                        menu.Visible = true;
-                                    }
-                                    return;
-                                }
-                                Game.Side = Side.X;
-                                Label(label);
-                            }
-                        }
                         break;
                     default: break;
                 }
-                //MessageBox.Show($"{i},{j}");
-                /*
-                if (Game.Side == Side.X)
-                {
-                    DrawX(grid, i, j);
-                    if(CheckWinner(grid, i, j))
-                    {
-                        if(Winner())
-                        {
-                            Restart(grid);
-                        }
-                        else
-                        {
-                            main.Visible = false;
-                            menu.Visible = true;
-                        }
-                        return;
-                    }
-                    Game.Side = Side.O;
-                    Label(label);
-                }else
-                {
-                    DrawO(grid, i, j);
-                    if (CheckWinner(grid, i, j))
-                    {
-                        if (Winner())
-                        {
-                            Restart(grid);
-                        }
-                        else
-                        {
-                            main.Visible = false;
-                            menu.Visible = true;
-                        }
-                        return;
-                    }
-                    Game.Side = Side.X;
-                    Label(label);
-                }*/
                 if (!turn)
                     turn = true;
                 if (Game.FullCells)
@@ -216,12 +131,6 @@ namespace TicTacToe
                     }
                 }
             };
-            public void Restart(Panel grid)
-            {
-                Game.Restart();
-                grid.Refresh();
-                turn = false;
-            }
             Button back = new Button()
             {
                 Text = "Назад",
@@ -301,6 +210,7 @@ namespace TicTacToe
             menu.Controls.Add(help);
             menu.Controls.Add(exit);
             this.Controls.Add(menu);
+            this.Controls.Add(main);
         }
         /// <summary>
         /// Рисует линию на панеле через две точки.
@@ -316,6 +226,15 @@ namespace TicTacToe
                 g.DrawLine(p, p1, p2);
             }
         }
+        /// <summary>
+        /// Рисует овал на панеле.
+        /// </summary>
+        /// <param name="p">Кисть</param>
+        /// <param name="pnl">Панель</param>
+        /// <param name="x">Координата X</param>
+        /// <param name="y">Координата Y</param>
+        /// <param name="width">Ширина</param>
+        /// <param name="height">Высота</param>
         public void DrawEllipse(Pen p, Panel pnl, float x, float y, float width, float height)
         {
             using (var g = pnl.CreateGraphics())
@@ -323,6 +242,12 @@ namespace TicTacToe
                 g.DrawEllipse(p, x, y, width, height);
             }
         }
+        /// <summary>
+        /// Рисует крестик в ячейке.
+        /// </summary>
+        /// <param name="grid">Игровое поле</param>
+        /// <param name="i">Строка</param>
+        /// <param name="j">Столбец</param>
         public void DrawX(Panel grid, int i, int j)
         {
             using (var pen = new Pen(Settings.XColor, 4))
@@ -331,6 +256,12 @@ namespace TicTacToe
                 DrawLine(pen, grid, new PointF(j * cellSize + 5, (i + 1) * cellSize - 5), new PointF((j + 1) * cellSize - 5, i * cellSize + 5));//отрисовка крестика
             }
         }
+        /// <summary>
+        /// Рисует нолик в ячейке.
+        /// </summary>
+        /// <param name="grid">Игровое поле</param>
+        /// <param name="i">Строка</param>
+        /// <param name="j">Столбец</param>
         public void DrawO(Panel grid, int i, int j)
         {
             using (var pen = new Pen(Settings.OColor, 3))
@@ -357,6 +288,123 @@ namespace TicTacToe
                 default:
                     break;
             }
+        }
+        /// <summary>
+        /// Определяет победу.
+        /// </summary>
+        /// <param name="grid">Игровое поле</param>
+        /// <param name="row">Строка</param>
+        /// <param name="col">Столбец</param>
+        public bool CheckWinner(Panel grid, int row, int col)
+        {
+            int win = Settings.Win - 1, rowV = row - win, colH = col - win, rowN = row + win,
+                countV = 0, countH = 0, countS = 0, countN = 0;
+            PointF startV = new PointF(),
+                   startH = new PointF(),
+                   startS = new PointF(),
+                   startN = new PointF();
+            for (int i = 0; i < Settings.Win * 2 - 1; i++)
+            {
+                try
+                {
+                    if (Game.Cells[rowV + i, col] == (int)Game.Side)
+                    {
+                        countV++;
+                        if (countV == 1)
+                            startV = new PointF(col * cellSize + cellSize / 2, (rowV + i) * cellSize);
+                        if (countV == Settings.Win)
+                        {
+                            using (var p = new Pen(Color.Black, 4))
+                            {
+                                DrawLine(p, grid, startV, new PointF(col * cellSize + cellSize / 2, (rowV + i + 1) * cellSize));
+                            }
+                            return true;
+                        }
+                    }
+                    else
+                        countV = 0;
+                }
+                catch
+                {
+                }
+                try
+                {
+                    if (Game.Cells[row, colH + i] == (int)Game.Side)
+                    {
+                        countH++;
+                        if (countH == 1)
+                            startH = new PointF((colH + i) * cellSize, row * cellSize + cellSize / 2);
+                        if (countH == Settings.Win)
+                        {
+                            using (var p = new Pen(Color.Black, 4))
+                            {
+                                DrawLine(p, grid, startH, new PointF((colH + i + 1) * cellSize, row * cellSize + cellSize / 2));
+                            }
+                            return true;
+                        }
+                    }
+                    else
+                        countH = 0;
+                }
+                catch
+                {
+                }
+                try
+                {
+                    if (Game.Cells[rowV + i, colH + i] == (int)Game.Side)
+                    {
+                        countS++;
+                        if (countS == 1)
+                            startS = new PointF((colH + i) * cellSize, (rowV + i) * cellSize);
+                        if (countS == Settings.Win)
+                        {
+                            using (var p = new Pen(Color.Black, 4))
+                            {
+                                DrawLine(p, grid, startS, new PointF((colH + i + 1) * cellSize, (rowV + i + 1) * cellSize));
+                            }
+                            return true;
+                        }
+                    }
+                    else
+                        countS = 0;
+                }
+                catch
+                {
+                }
+                try
+                {
+                    if (Game.Cells[rowN - i, colH + i] == (int)Game.Side)
+                    {
+                        countN++;
+                        if (countN == 1)
+                            startN = new PointF((colH + i) * cellSize, (rowN - i + 1) * cellSize);
+                        if (countN == Settings.Win)
+                        {
+                            using (var p = new Pen(Color.Black, 4))
+                            {
+                                DrawLine(p, grid, startN, new PointF((colH + i + 1) * cellSize, (rowN - i) * cellSize));
+                            }
+                            return true;
+                        }
+                    }
+                    else
+                        countN = 0;
+                }
+                catch
+                {
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// Рестарт игры
+        /// </summary>
+        /// <param name="grid">Игровое поле</param>
+        public void Restart(Panel grid)
+        {
+            Game.Restart();
+            grid.Refresh();
+            turn = false;
         }
     }
 }
